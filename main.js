@@ -1,22 +1,29 @@
 const $btn1 = document.getElementById('btn-kick');
 const $btn2 = document.getElementById('btn-punch');
 
+
+
+
 const character = 
 {
     name: 'Pikachu',
-    defaultHP: 100,
-    damageHP: 100,
+    defaultHP: 200,
+    damageHP: 200,
     elHP: document.getElementById('health-character'),
     elProgressbar: document.getElementById('progressbar-character'),
+    renderHP: renderHP,
+    changeHP: changeHP,
 }
 
 const enemy = 
 {
     name: 'Charmander',
-    defaultHP: 100,
-    damageHP: 100,
+    defaultHP: 250,
+    damageHP: 250,
     elHP: document.getElementById('health-enemy'),
     elProgressbar: document.getElementById('progressbar-enemy'),
+    renderHP: renderHP,
+    changeHP: changeHP,
 }
 
 const sorryMessage =
@@ -37,26 +44,26 @@ const sorryMessage =
 
 $btn1.addEventListener('click', function( )
 {
-    changeHP(random(20), enemy);
-    changeHP(random(20), character);
+    enemy.changeHP(random(20));
+    character.changeHP(random(20));
 });
 
 $btn2.addEventListener('click', function( )
 {
-    changeHP(random(40), enemy);
+    enemy.changeHP(random(40));
 });
 
 
 function init()
 {
-    renderHP(character);
-    renderHP(enemy);
+    character.renderHP();
+    enemy.renderHP();
 }
 
-function renderHP(person)
+function renderHP()
 {
-    renderHPLife(person);
-    renderProgressBar(person);
+    renderHPLife(this);
+    renderProgressBar(this);
 }
 
 function renderHPLife(person)
@@ -66,22 +73,22 @@ function renderHPLife(person)
 
 function renderProgressBar(person)
 {
-    person.elProgressbar.style.width = person.damageHP + '%';
+    person.elProgressbar.style.width = (person.damageHP/person.defaultHP)*100 + '%';
 }
 
-function changeHP(count, person)
+function changeHP(count)
 {
-    if (person.damageHP-count<0) 
+    if (this.damageHP-count<0) 
     {
-        person.damageHP=0;
+        this.damageHP=0;
         disableControls();
-        alert(person.name+sorryMessage[random(sorryMessage.length)-1]);  
+        alert(this.name+sorryMessage[random(sorryMessage.length)-1]);  
     }
     else
     {
-        person.damageHP -=count;
+        this.damageHP -=count;
     }
-    renderHP(person)
+    this.renderHP()
 }
 
 function random(num)
