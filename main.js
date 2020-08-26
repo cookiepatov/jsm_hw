@@ -57,10 +57,10 @@ return this.name+sorryText[random(sorryText.length)-1]
 }
 ;
 
-function generateLog(firstPerson, secondPerson, damage)
+function generateLog(reciever, giver, damage)
 {
-const {name, damageHP, defaultHP}=firstPerson;
-const {name: nameSecond}=secondPerson;
+const {name, damageHP, defaultHP}=reciever;
+const {name: nameSecond}=giver;
 const logs = [
     `${name} вспомнил что-то важное, но неожиданно ${nameSecond}, не помня себя от испуга, ударил в предплечье врага.`,
     `${name} поперхнулся, и за это ${nameSecond} с испугу приложил прямой удар коленом в лоб врага.`,
