@@ -1,5 +1,9 @@
-const $btn1 = document.getElementById('btn-kick');
-const $btn2 = document.getElementById('btn-punch');
+function $getElById(el)
+{
+    return document.getElementById(el);
+}
+const $btn1 = $getElById('btn-kick');
+const $btn2 = $getElById('btn-punch');
 
 
 
@@ -9,10 +13,14 @@ const character =
     name: 'Pikachu',
     defaultHP: 200,
     damageHP: 200,
-    elHP: document.getElementById('health-character'),
-    elProgressbar: document.getElementById('progressbar-character'),
+    elHP: $getElById('health-character'),
+    elProgressbar: $getElById('progressbar-character'),
     renderHP: renderHP,
     changeHP: changeHP,
+    renderHPLife: renderHPLife,
+    renderProgressBar: renderProgressBar,
+
+
 }
 
 const enemy = 
@@ -24,6 +32,8 @@ const enemy =
     elProgressbar: document.getElementById('progressbar-enemy'),
     renderHP: renderHP,
     changeHP: changeHP,
+    renderHPLife: renderHPLife,
+    renderProgressBar: renderProgressBar,
 }
 
 const sorryMessage =
@@ -62,31 +72,28 @@ function init()
 
 function renderHP()
 {
-    renderHPLife(this);
-    renderProgressBar(this);
+    this.renderHPLife();
+    this.renderProgressBar();
 }
 
-function renderHPLife(person)
+function renderHPLife()
 {
-    person.elHP.innerText = person.damageHP +' / '+person.defaultHP;
+    this.elHP.innerText = this.damageHP +' / '+this.defaultHP;
 }
 
-function renderProgressBar(person)
+function renderProgressBar()
 {
-    person.elProgressbar.style.width = (person.damageHP/person.defaultHP)*100 + '%';
+    this.elProgressbar.style.width = (this.damageHP/this.defaultHP)*100 + '%';
 }
 
 function changeHP(count)
 {
-    if (this.damageHP-count<0) 
+    this.damageHP -=count;
+    if (this.damageHP-count<=0) 
     {
         this.damageHP=0;
         disableControls();
         alert(this.name+sorryMessage[random(sorryMessage.length)-1]);  
-    }
-    else
-    {
-        this.damageHP -=count;
     }
     this.renderHP()
 }
