@@ -2,11 +2,35 @@
 const $btn1 = $getElById('btn-kick');
 const $btn2 = $getElById('btn-punch');
 const $logs = document.querySelector('#logs');
+const countAllClicks=counter()
 
 function $getElById(el)
 {
     return document.getElementById(el);
 }
+
+
+const btn1 =  //объект кнопка
+{
+    pointer: $btn1, //с указателем на саму кнопку,
+    defaultCaption: $btn1.innerText, //текстом, который там первоначально забит,
+    limit: 20, //лимитом нажатий
+    renderButtonLimits: renderButtonLimits //и функцией который этот лимит первоначально прописывает в innerText
+
+}
+
+const btn2 =
+{
+    pointer: $btn2,
+    defaultCaption: $btn2.innerText,
+    limit: 5,
+    renderButtonLimits: renderButtonLimits
+
+}
+
+const countBtn1=counter(btn1);
+const countBtn2=counter(btn2);
+
 
 const character = 
 {
@@ -79,11 +103,15 @@ $btn1.addEventListener('click', function( )
 {
     enemy.changeHP(random(20));
     character.changeHP(random(20));
+    countAllClicks();
+    countBtn1(btn1);
 });
 
 $btn2.addEventListener('click', function( )
 {
     enemy.changeHP(random(40));
+    countAllClicks();
+    countBtn2(btn2);
 });
 
 
@@ -91,6 +119,14 @@ function init()
 {
     character.renderHP();
     enemy.renderHP();
+    btn1.renderButtonLimits();
+    btn2.renderButtonLimits();
+}
+
+function renderButtonLimits()
+{
+    const {pointer, limit, defaultCaption} = this;
+    pointer.innerText=defaultCaption+` [${limit}/${limit}] `;
 }
 
 function renderHP()
@@ -120,8 +156,9 @@ function changeHP(count)
     {
         this.damageHP=0;
         disableControls();
-        alert(this.sorryMessage());
-        writeToLog(this.sorryMessage());
+        const mes=this.sorryMessage()
+        alert(mes);
+        writeToLog(mes);
     }
     this.renderHP()
 }
@@ -144,5 +181,32 @@ function writeToLog(text)
     $p.innerText = text;
     $logs.insertBefore($p, $logs.children[0]);
 }
+
+function counter(btn)
+{
+    let i=0;
+    return function (btn)
+    {
+        i++;
+
+        if (btn===undefined) // если объект кнопка не передаётся - то у нас просто счётчик кликов
+        {
+            console.log(i);
+            return;
+        }
+        const {limit, defaultCaption, pointer}=btn;
+        const left=limit-i;
+        console.log(left+' нажатий осталось');
+        pointer.innerText=defaultCaption+` [${limit-i}/${limit}] `;
+        if (left===0)
+        {
+            pointer.disabled=true;
+        }
+            
+        
+        
+    }
+}
+
 
 init();
