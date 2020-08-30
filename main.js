@@ -185,10 +185,10 @@ function writeToLog(text)
 function counter(btn)
 {
     let i=0;
-    return function (btn)
+    
+    return function ()
     {
         i++;
-
         if (btn===undefined) // если объект кнопка не передаётся - то у нас просто счётчик кликов
         {
             console.log(i);
@@ -197,14 +197,11 @@ function counter(btn)
         const {limit, defaultCaption, pointer}=btn;
         const left=limit-i;
         console.log(left+' нажатий осталось');
-        pointer.innerText=defaultCaption+` [${limit-i}/${limit}] `;
+        pointer.innerText=defaultCaption+` [${left}/${limit}] `;
         if (left===0)
         {
             pointer.disabled=true;
         }
-            
-        
-        
     }
 }
 
