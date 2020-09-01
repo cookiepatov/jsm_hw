@@ -1,8 +1,24 @@
-
+import Pokemon from "./pokemon.js"
+import random from "./utils.js"
 const $btn1 = $getElById('btn-kick');
 const $btn2 = $getElById('btn-punch');
 const $logs = document.querySelector('#logs');
 const countAllClicks=counter()
+
+
+const player1 = new Pokemon({
+    name: 'Pickachu',
+    type: 'Electric',
+    hp: 300,
+    selectors: 'character'
+})
+
+const player2 = new Pokemon({
+    name: 'Charmander',
+    type: 'Fire',
+    hp: 400,
+    selectors: 'enemy'
+})
 
 function $getElById(el)
 {
@@ -31,59 +47,37 @@ const btn2 =
 const countBtn1=counter(btn1);
 const countBtn2=counter(btn2);
 
-
-const character = 
+function charIsDead(player) //функция вызываемая в случае смерти персонажа
 {
-    name: 'Pikachu',
-    defaultHP: 200,
-    damageHP: 200,
-    elHP: $getElById('health-character'),
-    elProgressbar: $getElById('progressbar-character'),
-    renderHP: renderHP,
-    changeHP: changeHP,
-    renderHPLife: renderHPLife,
-    renderProgressBar: renderProgressBar,
-    sorryMessage: sorryMessage,
-
+    disableControls();
+    const text = sorryMessage(player.name);
+    alert(text);
+    writeToLog(text);
 
 }
 
-const enemy = 
+function sorryMessage(name)
 {
-    name: 'Charmander',
-    defaultHP: 250,
-    damageHP: 250,
-    elHP: document.getElementById('health-enemy'),
-    elProgressbar: document.getElementById('progressbar-enemy'),
-    renderHP: renderHP,
-    changeHP: changeHP,
-    renderHPLife: renderHPLife,
-    renderProgressBar: renderProgressBar,
-    sorryMessage: sorryMessage,
-}
 
-function sorryMessage() {
-    
-const sorryText =
-[
-' не выдержал издевательств!',
-' покинул чат.',
-' ушёл, но обещал вернуться.',
-' помер.',
-' хотел дружить, а его убили :(',
-' не думал что всё так закончится!',
-' погиб как герой!',
-' уже на пути в покемонью вальгаллу!',
-' был наказан судьбой.',
-' был смертельно ранен пластиковым стаканчиком.'
-]
-return this.name+sorryText[random(sorryText.length)-1]
-}
-;
+    const sorryText =
+    [
+    ' не выдержал издевательств!',
+    ' покинул чат.',
+    ' ушёл, но обещал вернуться.',
+    ' помер.',
+    ' хотел дружить, а его убили :(',
+    ' не думал что всё так закончится!',
+    ' погиб как герой!',
+    ' уже на пути в покемонью вальгаллу!',
+    ' был наказан судьбой.',
+    ' был смертельно ранен пластиковым стаканчиком.'
+    ]
+    return name+sorryText[random(sorryText.length)-1]
+};
 
 function generateLog(reciever, giver, damage)
 {
-const {name, damageHP, defaultHP}=reciever;
+const {name, hp:{current, total}}=reciever;
 const {name: nameSecond}=giver;
 const logs = [
     `${name} вспомнил что-то важное, но неожиданно ${nameSecond}, не помня себя от испуга, ударил в предплечье врага.`,
@@ -97,28 +91,48 @@ const logs = [
     `${name} расстроился, как вдруг, неожиданно ${nameSecond} случайно влепил стопой в живот соперника.`,
     `${name} пытался что-то сказать, но вдруг, неожиданно ${nameSecond} со скуки, разбил бровь сопернику.`
 ];
-return logs[random(logs.length)-1]+`\n-${damage}, [${damageHP}/${defaultHP}]`;
+return logs[random(logs.length)-1]+`\n-${damage}, [${current}/${total}]`;
 }
+
+
+
+
 $btn1.addEventListener('click', function( )
 {
-    enemy.changeHP(random(20));
-    character.changeHP(random(20));
+    player1.changeHP(random(20, 10), function(count, current){ //добавил в коллбэк здоровье у персонажа, который получает урон, чтобы отследить его смерть
+        writeToLog(generateLog(player1, player2, count))
+        if (current===0)
+        {
+            charIsDead(player1);
+        }      
+    })
+    player2.changeHP(random(20, 10), function(count, current){
+        writeToLog(generateLog(player2, player1, count))
+        if (current===0)
+        {
+            charIsDead(player2);
+        }   
+    });
     countAllClicks();
     countBtn1(btn1);
 });
 
 $btn2.addEventListener('click', function( )
 {
-    enemy.changeHP(random(40));
+    player2.changeHP(random(40,20), function(count, current){
+        writeToLog(generateLog(player2, player1, count))
+        if (current===0)
+        {
+            charIsDead(player2);
+        }   
+    });
     countAllClicks();
     countBtn2(btn2);
 });
 
 
-function init()
+function init() //Эту функцию оставил, т.к. она у меня добавляет лимиты нажатий для кнопок в первоначальный рендер
 {
-    character.renderHP();
-    enemy.renderHP();
     btn1.renderButtonLimits();
     btn2.renderButtonLimits();
 }
@@ -129,44 +143,7 @@ function renderButtonLimits()
     pointer.innerText=defaultCaption+` [${limit}/${limit}] `;
 }
 
-function renderHP()
-{
-    this.renderHPLife();
-    this.renderProgressBar();
-}
 
-function renderHPLife()
-{
-    const {damageHP, defaultHP} =this;
-    this.elHP.innerText = damageHP +' / '+defaultHP;
-}
-
-function renderProgressBar()
-{
-    const {damageHP, defaultHP} =this;
-    this.elProgressbar.style.width = (damageHP/defaultHP)*100 + '%';
-}
-
-function changeHP(count)
-{
-    this.damageHP -=count;
-    const logText= this === enemy ? generateLog(this, character, count) :generateLog(this, enemy, count);
-    writeToLog(logText);
-    if (this.damageHP-count<=0) 
-    {
-        this.damageHP=0;
-        disableControls();
-        const mes=this.sorryMessage()
-        alert(mes);
-        writeToLog(mes);
-    }
-    this.renderHP()
-}
-
-function random(MaxNum)
-{
-    return Math.ceil(Math.random()*MaxNum);
-}
 
 function disableControls()
 {
