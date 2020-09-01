@@ -1,10 +1,15 @@
 import Pokemon from "./pokemon.js"
 import random from "./utils.js"
-const $btn1 = $getElById('btn-kick');
-const $btn2 = $getElById('btn-punch');
+import Button from "./button.js"
 const $logs = document.querySelector('#logs');
 const countAllClicks=counter()
+const $btn1 = $getElById('btn-kick');
+const $btn2 = $getElById('btn-punch');
 
+function $getElById(el)
+{
+    return document.getElementById(el);
+}
 
 const player1 = new Pokemon({
     name: 'Pickachu',
@@ -20,29 +25,9 @@ const player2 = new Pokemon({
     selectors: 'enemy'
 })
 
-function $getElById(el)
-{
-    return document.getElementById(el);
-}
+const btn1 = new Button($btn1,20);
+const btn2 = new Button($btn2,5);
 
-
-const btn1 =  //объект кнопка
-{
-    pointer: $btn1, //с указателем на саму кнопку,
-    defaultCaption: $btn1.innerText, //текстом, который там первоначально забит,
-    limit: 20, //лимитом нажатий
-    renderButtonLimits: renderButtonLimits //и функцией который этот лимит первоначально прописывает в innerText
-
-}
-
-const btn2 =
-{
-    pointer: $btn2,
-    defaultCaption: $btn2.innerText,
-    limit: 5,
-    renderButtonLimits: renderButtonLimits
-
-}
 
 const countBtn1=counter(btn1);
 const countBtn2=counter(btn2);
@@ -56,7 +41,7 @@ function charIsDead(player) //функция вызываемая в случа�
 
 }
 
-function sorryMessage(name)
+function sorryMessage(name) //рандомное сообщение при смерти персонажа
 {
 
     const sorryText =
@@ -94,21 +79,18 @@ const logs = [
 return logs[random(logs.length)-1]+`\n-${damage}, [${current}/${total}]`;
 }
 
-
-
-
 $btn1.addEventListener('click', function( )
 {
-    player1.changeHP(random(20, 10), function(count, current){ //добавил в коллбэк здоровье у персонажа, который получает урон, чтобы отследить его смерть
+    player1.changeHP(random(20, 10), function(count, currentHealth){ //добавил в коллбэк здоровье персонажа, который получает урон, чтобы отследить его смерть
         writeToLog(generateLog(player1, player2, count))
-        if (current===0)
+        if (currentHealth===0)
         {
             charIsDead(player1);
         }      
     })
-    player2.changeHP(random(20, 10), function(count, current){
+    player2.changeHP(random(20, 10), function(count, currentHealth){
         writeToLog(generateLog(player2, player1, count))
-        if (current===0)
+        if (currentHealth===0)
         {
             charIsDead(player2);
         }   
@@ -119,9 +101,9 @@ $btn1.addEventListener('click', function( )
 
 $btn2.addEventListener('click', function( )
 {
-    player2.changeHP(random(40,20), function(count, current){
+    player2.changeHP(random(40,20), function(count, currentHealth){
         writeToLog(generateLog(player2, player1, count))
-        if (current===0)
+        if (currentHealth===0)
         {
             charIsDead(player2);
         }   
@@ -129,21 +111,6 @@ $btn2.addEventListener('click', function( )
     countAllClicks();
     countBtn2(btn2);
 });
-
-
-function init() //Эту функцию оставил, т.к. она у меня добавляет лимиты нажатий для кнопок в первоначальный рендер
-{
-    btn1.renderButtonLimits();
-    btn2.renderButtonLimits();
-}
-
-function renderButtonLimits()
-{
-    const {pointer, limit, defaultCaption} = this;
-    pointer.innerText=defaultCaption+` [${limit}/${limit}] `;
-}
-
-
 
 function disableControls()
 {
@@ -181,6 +148,3 @@ function counter(btn)
         }
     }
 }
-
-
-init();

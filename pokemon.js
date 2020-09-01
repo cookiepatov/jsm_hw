@@ -1,4 +1,3 @@
-import random from "./utils.js"
 class Selectors
 {
     constructor (name)
