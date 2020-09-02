@@ -1,89 +1,68 @@
-
-const $btn1 = $getElById('btn-kick');
-const $btn2 = $getElById('btn-punch');
+import Pokemon from "./pokemon.js"
+import random from "./utils.js"
+import Button from "./button.js"
 const $logs = document.querySelector('#logs');
 const countAllClicks=counter()
+const $btn1 = $getElById('btn-kick');
+const $btn2 = $getElById('btn-punch');
 
 function $getElById(el)
 {
     return document.getElementById(el);
 }
 
+const player1 = new Pokemon({
+    name: 'Pickachu',
+    type: 'Electric',
+    hp: 300,
+    selectors: 'character'
+})
 
-const btn1 =  //объект кнопка
-{
-    pointer: $btn1, //с указателем на саму кнопку,
-    defaultCaption: $btn1.innerText, //текстом, который там первоначально забит,
-    limit: 20, //лимитом нажатий
-    renderButtonLimits: renderButtonLimits //и функцией который этот лимит первоначально прописывает в innerText
+const player2 = new Pokemon({
+    name: 'Charmander',
+    type: 'Fire',
+    hp: 400,
+    selectors: 'enemy'
+})
 
-}
+const btn1 = new Button($btn1,20);
+const btn2 = new Button($btn2,5);
 
-const btn2 =
-{
-    pointer: $btn2,
-    defaultCaption: $btn2.innerText,
-    limit: 5,
-    renderButtonLimits: renderButtonLimits
-
-}
 
 const countBtn1=counter(btn1);
 const countBtn2=counter(btn2);
 
-
-const character = 
+function charIsDead(player) //функция вызываемая в случае смерти персонажа
 {
-    name: 'Pikachu',
-    defaultHP: 200,
-    damageHP: 200,
-    elHP: $getElById('health-character'),
-    elProgressbar: $getElById('progressbar-character'),
-    renderHP: renderHP,
-    changeHP: changeHP,
-    renderHPLife: renderHPLife,
-    renderProgressBar: renderProgressBar,
-    sorryMessage: sorryMessage,
-
+    disableControls();
+    const text = sorryMessage(player.name);
+    alert(text);
+    writeToLog(text);
 
 }
 
-const enemy = 
+function sorryMessage(name) //рандомное сообщение при смерти персонажа
 {
-    name: 'Charmander',
-    defaultHP: 250,
-    damageHP: 250,
-    elHP: document.getElementById('health-enemy'),
-    elProgressbar: document.getElementById('progressbar-enemy'),
-    renderHP: renderHP,
-    changeHP: changeHP,
-    renderHPLife: renderHPLife,
-    renderProgressBar: renderProgressBar,
-    sorryMessage: sorryMessage,
-}
 
-function sorryMessage() {
-    
-const sorryText =
-[
-' не выдержал издевательств!',
-' покинул чат.',
-' ушёл, но обещал вернуться.',
-' помер.',
-' хотел дружить, а его убили :(',
-' не думал что всё так закончится!',
-' погиб как герой!',
-' уже на пути в покемонью вальгаллу!',
-' был наказан судьбой.',
-' был смертельно ранен пластиковым стаканчиком.'
-]
-return this.name+sorryText[random(sorryText.length)-1]
-}
-;
+    const sorryText =
+    [
+    ' не выдержал издевательств!',
+    ' покинул чат.',
+    ' ушёл, но обещал вернуться.',
+    ' помер.',
+    ' хотел дружить, а его убили :(',
+    ' не думал что всё так закончится!',
+    ' погиб как герой!',
+    ' уже на пути в покемонью вальгаллу!',
+    ' был наказан судьбой.',
+    ' был смертельно ранен пластиковым стаканчиком.'
+    ]
+    return name+sorryText[random(sorryText.length)-1]
+};
 
 function generateLog(reciever, giver, damage)
 {
-const {name, damageHP, defaultHP}=reciever;
+const {name, hp:{current, total}}=reciever;
 const {name: nameSecond}=giver;
 const logs = [
     `${name} вспомнил что-то важное, но неожиданно ${nameSecond}, не помня себя от испуга, ударил в предплечье врага.`,
@@ -97,76 +76,41 @@ const logs = [
     `${name} расстроился, как вдруг, неожиданно ${nameSecond} случайно влепил стопой в живот соперника.`,
     `${name} пытался что-то сказать, но вдруг, неожиданно ${nameSecond} со скуки, разбил бровь сопернику.`
 ];
-return logs[random(logs.length)-1]+`\n-${damage}, [${damageHP}/${defaultHP}]`;
+return logs[random(logs.length)-1]+`\n-${damage}, [${current}/${total}]`;
 }
+
 $btn1.addEventListener('click', function( )
 {
-    enemy.changeHP(random(20));
-    character.changeHP(random(20));
+    player1.changeHP(random(20, 10), function(count, currentHealth){ //добавил в коллбэк здоровье персонажа, который получает урон, чтобы отследить его смерть
+        writeToLog(generateLog(player1, player2, count))
+        if (currentHealth===0)
+        {
+            charIsDead(player1);
+        }      
+    })
+    player2.changeHP(random(20, 10), function(count, currentHealth){
+        writeToLog(generateLog(player2, player1, count))
+        if (currentHealth===0)
+        {
+            charIsDead(player2);
+        }   
+    });
     countAllClicks();
     countBtn1(btn1);
 });
 
 $btn2.addEventListener('click', function( )
 {
-    enemy.changeHP(random(40));
+    player2.changeHP(random(40,20), function(count, currentHealth){
+        writeToLog(generateLog(player2, player1, count))
+        if (currentHealth===0)
+        {
+            charIsDead(player2);
+        }   
+    });
     countAllClicks();
     countBtn2(btn2);
 });
-
-
-function init()
-{
-    character.renderHP();
-    enemy.renderHP();
-    btn1.renderButtonLimits();
-    btn2.renderButtonLimits();
-}
-
-function renderButtonLimits()
-{
-    const {pointer, limit, defaultCaption} = this;
-    pointer.innerText=defaultCaption+` [${limit}/${limit}] `;
-}
-
-function renderHP()
-{
-    this.renderHPLife();
-    this.renderProgressBar();
-}
-
-function renderHPLife()
-{
-    const {damageHP, defaultHP} =this;
-    this.elHP.innerText = damageHP +' / '+defaultHP;
-}
-
-function renderProgressBar()
-{
-    const {damageHP, defaultHP} =this;
-    this.elProgressbar.style.width = (damageHP/defaultHP)*100 + '%';
-}
-
-function changeHP(count)
-{
-    this.damageHP -=count;
-    const logText= this === enemy ? generateLog(this, character, count) :generateLog(this, enemy, count);
-    writeToLog(logText);
-    if (this.damageHP-count<=0) 
-    {
-        this.damageHP=0;
-        disableControls();
-        const mes=this.sorryMessage()
-        alert(mes);
-        writeToLog(mes);
-    }
-    this.renderHP()
-}
-
-function random(MaxNum)
-{
-    return Math.ceil(Math.random()*MaxNum);
-}
 
 function disableControls()
 {
@@ -185,10 +129,10 @@ function writeToLog(text)
 function counter(btn)
 {
     let i=0;
-    return function (btn)
+    
+    return function ()
     {
         i++;
-
         if (btn===undefined) // если объект кнопка не передаётся - то у нас просто счётчик кликов
         {
             console.log(i);
@@ -197,16 +141,10 @@ function counter(btn)
         const {limit, defaultCaption, pointer}=btn;
         const left=limit-i;
         console.log(left+' нажатий осталось');
-        pointer.innerText=defaultCaption+` [${limit-i}/${limit}] `;
+        pointer.innerText=defaultCaption+` [${left}/${limit}] `;
         if (left===0)
         {
             pointer.disabled=true;
         }
-            
-        
-        
     }
 }
-
-
-init();
