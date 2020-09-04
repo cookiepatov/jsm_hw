@@ -7,6 +7,8 @@ class Game
     {
         this.players=players;        
     }
+    
+    /* 
     renderAttacks = (charIsDeadCb) =>
     {
         this.players.forEach(player=>{
@@ -36,8 +38,6 @@ class Game
                 {
                     cnt();
                     defender.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
-                        console.log(defender);
-                        console.log(count);
                         writeToLog(generateLog(defender, attacker, count))
                         if (currentHealth===0)
                         {
@@ -55,6 +55,74 @@ class Game
             })
         })
     }
+     */
+    renderPlayerAttacks = (charIsDeadCb) =>
+    {
+        const player=this.players[0]
+        const enemy=this.players[1]
+        player.attacks.forEach(attack=>{
+            const $btn = document.createElement('button');
+            $btn.classList.add('button');
+            $btn.innerText = attack.name;
+            player.elControl.appendChild($btn);
+            const btn = new Button($btn,attack.maxCount);
+            const cnt=counter(btn);
+            $btn.addEventListener('click', function( ){
+                cnt();
+                enemy.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
+                    writeToLog(generateLog(enemy,player,count));
+                    if (currentHealth===0)
+                    {
+                        charIsDeadCb(enemy);
+                    }
+                    else
+                    {
+                        charIsDeadCb(0);
+                    }
+                })
+
+            })
+        })
+    }
+    renderEnemyAttacks = (charIsDeadCb) =>
+    {
+        this.deleteEnemyControls();
+        const player=this.players[0]
+        const enemy=this.players[1]
+        enemy.attacks.forEach(attack=>{
+            const $btn = document.createElement('button');
+            $btn.classList.add('button');
+            $btn.innerText = attack.name;
+            enemy.elControl.appendChild($btn);
+            const btn = new Button($btn,attack.maxCount);
+            const cnt=counter(btn);
+            $btn.addEventListener('click', function( ){
+                cnt();
+                player.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
+                    writeToLog(generateLog(player,enemy,count));
+                    if (currentHealth===0)
+                    {
+                        charIsDeadCb(player);
+                    }
+                    else
+                    {
+                        charIsDeadCb(0);
+                    }
+                })
+
+            })
+        })
+    }
+    changeEnemy = (enemy) =>
+    {
+        this.players[1]=enemy;
+        renderEnemyAttacks();
+    }
+    deleteEnemyControls = () =>
+    {
+        const control2=document.querySelectorAll('.control-player2 .button');
+        control2.forEach(item =>item.remove());       
+    }
     hideEnemyControls = () =>
     {
         const control2=document.querySelectorAll('.control-player2 .button');
@@ -62,7 +130,6 @@ class Game
     }
     strikeBack = () =>
     {
-        console.log("Ответочка");
         const control2=document.querySelectorAll('.control-player2 .button');
         let i=0;
         do { //в этом цикле перебираем все кнопки и удаляем из массива неактивные, которые израсходовали лимит
