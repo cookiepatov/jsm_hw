@@ -39,7 +39,6 @@ function counter(btn)
         }
         const {limit, defaultCaption, pointer}=btn;
         const left=limit-i;
-        console.log(left+' нажатий осталось');
         pointer.innerText=defaultCaption+` [${left}/${limit}] `;
         if (left===0)
         {
@@ -72,15 +71,37 @@ function writeToLog (text)
     const $p = document.createElement('p');
     $p.innerText = text;
     $logs.insertBefore($p, $logs.children[0]);
+/*      if($logs.children.length>8)
+    {
+        console.log("Длинный лог");
+
+    } */
 }
 
 
-function deleteControls() //Должно быть в классе Game
+function disableControls() //Должно быть в классе Game
+{
+    const control1=document.querySelectorAll('.control-player1 .button');
+    const control2=document.querySelectorAll('.control-player2 .button');
+    control1.forEach(item =>item.disabled=true);
+    control2.forEach(item =>item.disabled=true);
+}
+function removeControls() //Должно быть в классе Game
 {
     const control1=document.querySelectorAll('.control-player1 .button');
     const control2=document.querySelectorAll('.control-player2 .button');
     control1.forEach(item =>item.remove());
     control2.forEach(item =>item.remove());
 }
+function twoRandoms(max)
+{
+    const r1=random(max)-1;
+    let r2;
+    do{
+        r2=random(max)-1;        
+    } while (r2===r1);
+    const result=[r1, r2];
+    return result;
 
-export  {random, generateLog, counter, sorryMessage, writeToLog, deleteControls};
+}
+export  {random, generateLog, counter, sorryMessage, writeToLog, disableControls, removeControls, twoRandoms};

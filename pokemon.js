@@ -30,7 +30,7 @@ class Pokemon extends Selectors
     changeHP= (count, cb) =>
 {
     this.hp.current -=count;
-    if (this.hp.current-count<=0) 
+    if (this.hp.current<=0) 
     {
         this.hp.current=0;
     }
