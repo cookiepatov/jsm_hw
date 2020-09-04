@@ -6,6 +6,7 @@ class Selectors
         this.elProgressbar = document.getElementById(`progressbar-${name}`);
         this.elImg = document.getElementById(`img-${name}`);
         this.elName = document.getElementById(`name-${name}`);
+        this.elControl = document.querySelector(`.control-${name}`);
     }
 }
 class Pokemon extends Selectors
@@ -24,8 +25,7 @@ class Pokemon extends Selectors
         this.renderHP();
         this.renderImg();
         this.renderName();
-
-
+        
     }
     changeHP= (count, cb) =>
 {

@@ -75,4 +75,12 @@ function writeToLog (text)
 }
 
 
-export  {random, generateLog, counter, sorryMessage, writeToLog};
+function deleteControls() //Должно быть в классе Game
+{
+    const control1=document.querySelectorAll('.control-player1 .button');
+    const control2=document.querySelectorAll('.control-player2 .button');
+    control1.forEach(item =>item.remove());
+    control2.forEach(item =>item.remove());
+}
+
+export  {random, generateLog, counter, sorryMessage, writeToLog, deleteControls};

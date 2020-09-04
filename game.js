@@ -1,6 +1,6 @@
-import {random, generateLog, counter, sorryMessage, writeToLog} from "./utils.js"
+import {random, generateLog, counter, sorryMessage, writeToLog, deleteControls} from "./utils.js"
 import Button from "./button.js"
-const $control = document.querySelector('.control');
+
 class Game
 {
     constructor(players)
@@ -28,7 +28,7 @@ class Game
                 const $btn = document.createElement('button');
                 $btn.classList.add('button');
                 $btn.innerText = attack.name;
-                $control.appendChild($btn);
+                player.elControl.appendChild($btn);
                 const btn = new Button($btn,attack.maxCount);
                 const cnt=counter(btn);
                 $btn.addEventListener('click', function( )
@@ -57,10 +57,6 @@ function charIsDead(player)
     deleteControls();
 
 }
-function deleteControls() //Туда же
-{
-    const controls=document.querySelectorAll('.control .button');
-    controls.forEach(item =>item.remove());
-}
+
 
 export default Game; 

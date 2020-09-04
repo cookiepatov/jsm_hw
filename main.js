@@ -1,8 +1,9 @@
 import Pokemon from "./pokemon.js"
-import {random} from "./utils.js"
+import {random, deleteControls} from "./utils.js"
 import {pokemons} from "./pokemons.js"
 import Game from "./game.js"
-
+const $reset=document.getElementById('btn-reset');
+$reset.innerText="Перезапустить"
 function StartGame()
 {
     let player1 = new Pokemon({
@@ -19,4 +20,8 @@ function StartGame()
 }
 StartGame();
 
+$reset.addEventListener('click', function( ){
+    deleteControls();
+    StartGame();
+})
 
