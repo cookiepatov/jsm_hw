@@ -1,3 +1,4 @@
+const $logs = document.querySelector('#logs');
 function random(max, min=0)
 {
     const diff=max-min
@@ -66,5 +67,12 @@ function sorryMessage(name) //рандомное сообщение при см�
     return name+sorryText[random(sorryText.length)-1]
 };
 
+function writeToLog (text)
+{
+    const $p = document.createElement('p');
+    $p.innerText = text;
+    $logs.insertBefore($p, $logs.children[0]);
+}
 
-export  {random, generateLog, counter, sorryMessage};
+
+export  {random, generateLog, counter, sorryMessage, writeToLog};

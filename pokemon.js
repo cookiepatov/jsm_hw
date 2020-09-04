@@ -4,6 +4,8 @@ class Selectors
     {
         this.elHP = document.getElementById(`health-${name}`);
         this.elProgressbar = document.getElementById(`progressbar-${name}`);
+        this.elImg = document.getElementById(`img-${name}`);
+        this.elName = document.getElementById(`name-${name}`);
     }
 }
 class Pokemon extends Selectors
@@ -17,9 +19,12 @@ class Pokemon extends Selectors
             total: hp,
         };
         this.type = type;
-        this.renderHP();
         this.attacks = attacks;
         this.img = img;
+        this.renderHP();
+        this.renderImg();
+        this.renderName();
+
 
     }
     changeHP= (count, cb) =>
@@ -49,7 +54,14 @@ class Pokemon extends Selectors
         const {elProgressbar, hp:{current, total}} =this;
         elProgressbar.style.width = (current/total)*100 + '%';
     }
-
+    renderImg = () =>
+    {
+        this.elImg.src=this.img;
+    }
+    renderName = () =>
+    {
+        this.elName.innerText=this.name;
+    }
 
 
 
