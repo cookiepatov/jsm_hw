@@ -8,68 +8,22 @@ class Game
         this.players=players;        
     }
     
-    /* 
-    renderAttacks = (charIsDeadCb) =>
-    {
-        this.players.forEach(player=>{
-            let attacker; //какой то стрёмный момент тут, но не могу придумать как это сделать нормально
-            let defender;
-            let mode; //0 - удар наносит игрок, 1 - противник. 1 в целом не нужен, но на всякий случай оставил
-            if (player===this.players[0])
-            {
-                attacker=this.players[0];
-                defender=this.players[1];
-                mode=0;
-            }
-            else
-            {
-                attacker=this.players[1];
-                defender=this.players[0];
-                mode=1;
-            }
-            player.attacks.forEach(attack=>{
-                const $btn = document.createElement('button');
-                $btn.classList.add('button');
-                $btn.innerText = attack.name;
-                player.elControl.appendChild($btn);
-                const btn = new Button($btn,attack.maxCount);
-                const cnt=counter(btn);
-                $btn.addEventListener('click', function( )
-                {
-                    cnt();
-                    defender.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
-                        writeToLog(generateLog(defender, attacker, count))
-                        if (currentHealth===0)
-                        {
-                            charIsDeadCb(defender); 
-                        }
-                        else if(mode===0) // не очень красиво. Смысл в том, что если никто не умер и удар наносит игрок - то у нас вызывается пустой коллбэк
-                        {
-                            charIsDeadCb(0);
-                        }
-
-                    })
-
-
-                })
-            })
-        })
-    }
-     */
     renderPlayerAttacks = (charIsDeadCb) =>
     {
-        const player=this.players[0]
-        const enemy=this.players[1]
+        const player=this.players[0];
+        const enemy=this.players[1];
         player.attacks.forEach(attack=>{
+            const attackId=attack.id;
             const $btn = document.createElement('button');
             $btn.classList.add('button');
             $btn.innerText = attack.name;
             player.elControl.appendChild($btn);
             const btn = new Button($btn,attack.maxCount);
             const cnt=counter(btn);
-            $btn.addEventListener('click', function( ){
+            $btn.addEventListener('click', async function( ){
+                const {kick:{player1, player2}} = await getAttack(player.id,attackId,enemy.id);
                 cnt();
-                enemy.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
+                enemy.changeHP(player1, function(count, currentHealth){
                     writeToLog(generateLog(enemy,player,count));
                     if (currentHealth===0)
                     {
@@ -77,7 +31,7 @@ class Game
                     }
                     else
                     {
-                        charIsDeadCb(0);
+                        charIsDeadCb(player2);
                     }
                 })
 
@@ -95,11 +49,12 @@ class Game
             $btn.innerText = attack.name;
             enemy.elControl.appendChild($btn);
             const btn = new Button($btn,attack.maxCount);
+            const attackId=attack.id;
             const cnt=counter(btn);
-            $btn.addEventListener('click', function( ){
+            $btn.addEventListener('click', async function( ){
                 cnt();
                 player.changeHP(random(attack.maxDamage,attack.minDamage), function(count, currentHealth){
-                    writeToLog(generateLog(player,enemy,count));
+                    writeToLog(generateLog(player,enemy ,count));
                     if (currentHealth===0)
                     {
                         charIsDeadCb(player);
@@ -116,7 +71,6 @@ class Game
     changeEnemy = (enemy) =>
     {
         this.players[1]=enemy;
-        renderEnemyAttacks();
     }
     deleteEnemyControls = () =>
     {
@@ -128,9 +82,9 @@ class Game
         const control2=document.querySelectorAll('.control-player2 .button');
         control2.forEach(item =>item.hidden=true);
     }
-    strikeBack = () =>
+    strikeBack = (dmg, charIsDeadCb) =>
     {
-        const control2=document.querySelectorAll('.control-player2 .button');
+  /*       const control2=document.querySelectorAll('.control-player2 .button');
         let i=0;
         do { //в этом цикле перебираем все кнопки и удаляем из массива неактивные, которые израсходовали лимит
             if(control2[i].disabled)
@@ -141,7 +95,17 @@ class Game
         } while (i<control2.length);
         const $randButton=control2[random(control2.length)-1]
         console.log($randButton.innerText);
-        $randButton.click(); //клацаем по случайной активной кнопке
+        $randButton.click(); //клацаем по случайной активной кнопке */
+        const player=this.players[0];
+        const enemy=this.players[1];
+        player.changeHP(dmg, function(count, currentHealth)
+        {
+            writeToLog(generateLog(enemy,player,dmg));
+            if (currentHealth===0)
+            {
+                charIsDeadCb(player);
+            }
+        })
     }
     charIsDead = (player) =>
     {
@@ -151,5 +115,24 @@ class Game
         disableControls();
     }
 }
+async function getAttack(p1,a1,p2)
+{
+    const response = await fetch(`https://reactmarathon-api.netlify.app/api/fight?player1id=${p1}&attackId=${a1}&player2id=${p2}`);
+    const body = await response.json();
+    return body;
+}
+async function getPokemon(id=0)
+{
+    let response
+    if (id!=0){
+        response = await fetch(`https://reactmarathon-api.netlify.app/api/pokemons?id=${id}`);
+    }
+    else{
+        response = await fetch('https://reactmarathon-api.netlify.app/api/pokemons?random=true');
+    }
+    const body = await response.json();
+    return body;
 
-export default Game; 
+    
+}
+export {Game, getPokemon}; 
