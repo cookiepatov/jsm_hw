@@ -1,50 +1,55 @@
 import Pokemon from "./pokemon.js"
 import {removeControls, twoRandoms} from "./utils.js"
-import {pokemons} from "./pokemons.js"
-import Game from "./game.js"
+import {Game, getPokemon} from "./game.js"
 const $reset=document.getElementById('btn-reset');
 const $changeEnemy=document.getElementById('btn-change-enemy');
 $reset.innerText="Перезапустить";
 $changeEnemy.innerText="Сменить противника";
 
-function StartGame()
+
+async function StartGame()
 {
-    const r=twoRandoms(pokemons.length);
+    const pokemon1 = await getPokemon();
+    const pokemon2 = await getPokemon();
+    const pokemons= [pokemon1, pokemon2];
     const player1 = new Pokemon({
-        ...pokemons[r[0]],
+        ...pokemons[0],
         selectors: 'player1'
     })
     
     let player2 = new Pokemon({
-        ...pokemons[r[1]],
+        ...pokemons[1],
         selectors: 'player2'
     })
     
     const game = new Game([player1, player2]);
-    game.renderEnemyAttacks(function(player){ //если передаётся персонаж - значит он умер
+/*     game.renderEnemyAttacks(function(player){ //если передаётся персонаж - значит он умер
         if(player)
         {
             game.charIsDead(player);
         }     
-    });
+    }); */
     game.renderPlayerAttacks(function(player){ //если передаётся персонаж - значит он умер, если 0 - значит нужна ответная атака от врага
-        if(player)
+        if(typeof(player)==='object')
         {
             game.charIsDead(player);
         }
         else
         {
-            game.strikeBack();
+            game.strikeBack(player, function(DeadPlayer)
+            {
+                game.charIsDead(DeadPlayer);
+            });
         }        
     });
 
 
     game.hideEnemyControls();
-    $changeEnemy.addEventListener('click', function( ) //не работает как надо. Понимаю почему, не знаю как это исправить.
+    $changeEnemy.addEventListener('click', async function( ) //не работает как надо. Понимаю почему, не знаю как это исправить.
     {
-        const r=twoRandoms(pokemons.length);
+        const pokemon2 = await getPokemon();
         player2 = new Pokemon({
-            ...pokemons[r[0]],
+            ...pokemon2,
             selectors: 'player2'
         })
         game.changeEnemy(player2);
